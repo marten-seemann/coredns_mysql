@@ -51,12 +51,11 @@ func (handler *CoreDNSMySql) ServeDNS(ctx context.Context, w dns.ResponseWriter,
 
 	if len(records) == 0 {
 		// no record found but we are going to return a SOA
-		rec := &Record{
-			Name:       qName,
-			RecordType: "SOA",
-			Content:    "{}",
+		recs, err := handler.findRecord(qZone, "", "SOA")
+		if err != nil {
+			return handler.errorResponse(state, dns.RcodeServerFailure, err)
 		}
-		records = append(records, rec)
+		records = append(records, recs...)
 	}
 
 	if qType == "AXFR" {
